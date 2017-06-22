@@ -8,7 +8,6 @@
 
 ![image](https://github.com/guangying123/XD_JavaWeb_Microblog/blob/master/show_images/注册成功.png)
 
-
 ![image](https://github.com/guangying123/XD_JavaWeb_Microblog/blob/master/show_images/查看更多.png)
 
 ![image](https://github.com/guangying123/XD_JavaWeb_Microblog/blob/master/show_images/动态.png)
