@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+
+
+    <script  src="javascripts/jQuery.js"></script>
+    <link rel="stylesheet" type ="text/css" href="bootstrap/dist/css/bootstrap.min.css"/>
+    <script src="bootstrap/dist/js/bootstrap.min.js"></script>
+    <link type="text/css" rel = "stylesheet" href="bootstrapvalidator-master/dist/css/bootstrapValidator.min.css"/>
+    <script src="bootstrapvalidator-master/dist/js/bootstrapValidator.min.js"></script>
+    <script src="javascripts/fromcheck.js"></script>
+    <script src="carhartl-jquery-cookie-92b7715/jquery.cookie.js"></script>
+
+    <style type="text/css">
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      html,body
+      {
+        width: 100%;
+        height: 100%;
+        background-color: skyblue;
+      }
+    </style>
+
+  </head>
+  <body>
+
+  <div id = "home" class="container ">
+
+    <h1 style="color:white ; font-size:40pt ; margin-top: 5%">西电小微!</h1>
+
+    <div class="row" style="margin-right: 0px">
+      <div class="col-md-3 col-md-offset-9">
+        <form class="form-horizontal" role="form" style="margin-top: 40%">
+          <div class="form-group">
+            <ul class="nav nav-pills">
+              <li class="active"><a  data-toggle="tab"  href="#login" style="color:white">登录<span class="caret"></span></a></li>
+              <li><a data-toggle="tab"  href="#logup" style="color:white">注册<span class="caret"></span></a></li><br>
+            </ul>
+          </div>
+          <div  class="form-group">
+            <div  class="tab-content">
+              <!-- &lt;!&ndash; 登陆界面&ndash;&gt;-->
+              <div class="tab-pane fade in active" id="login">
+                <form class="form-horizontal" role="form" id="loginform" >
+                  <div class="form-group">
+                    <input type="text" class="form-control " placeholder="学号" name="loginname" id="loginname"/>
+                  </div>
+                  <div class="form-group">
+                    <input type="password" class="form-control" placeholder="密码" name="logincode" id="logincode" />
+                  </div>
+
+                  <div class="form-group">
+                    <input type="radio" id="remember"/>记住密码
+                  </div>
+                  <div class="form-group">
+                    <button type="button" class="btn btn-success" name="loginbtn" id="loginbut">登陆</button>
+                    <button type="button" class="btn btn-danger" name="incancel" onclick="f1()">取消</button>
+                  </div>
+                </form>
+              </div>
+              <!--注册界面&ndash;-->
+              <div id="logup" class="tab-pane fade">
+                <form role="form" class="form-horizontal" id="logform">
+                  <div class="form-group">
+                    <input type="text" class="form-control" name="tel"  placeholder="*手机号"/>
+                  </div>
+                  <div class="form-group">
+                    <input type="text" class="form-control" name="StuId"  placeholder="*学号"/>
+                  </div>
+
+                  <div class="form-group">
+                    <input type="password" class="form-control" name ="password1" id="code" placeholder="*密码"/>
+                  </div>
+
+                  <div class="form-group">
+                    <input type="password" class="form-control" name ="password2"  placeholder="确认密码"/>
+                  </div>
+
+                  <div class="form-group">
+                    <button  type="button"  class ="btn btn-success"  name="logupbtn" value="注册" id="logupbtn" >注册</button>
+                    <button type="button" class="btn btn-danger" name="upcancel">取消</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </form>
+
+      </div>
+    </div>
+    <canvas id="mytower" width="500px" height="500px" style="position: absolute;top:10%"></canvas>
+    <!-- 版权信息   存在问题-->
+    <div class="row" style="margin-top:5% ">
+      <div class="col-md-6 col-md-offset-4">
+        <em>Copyright 2017 designed by <a href="#">畅阳光!</a></em>
+      </div>
+    </div>
+  </div>
+  <script>
+    function deal(e)
+    {
+        var e = e||window.event;
+        var index = e.which||e.charCode;
+       // console.log(index);
+        if(index == 13)
+        {
+            $('#loginbut').click();
+
+        }
+    }
+    window.onkeydown = deal;
+      $(function () {
+          //Cookie模块
+          if($.cookie('loginname')!='null'&&$.cookie('logincode')!='null'&&$.cookie('loginname')&&$.cookie('logincode'))//判断Cookie是否有效 若有效则显示出来
+          {
+              $('#loginname').val($.cookie('loginname'));
+              $('#logincode').val($.cookie('logincode'));
+          }
+
+          $('#loginbut').click(function () {   //登陆模块  发送AJAX请求到loginroute处理路由    （界面始终不跳转）
+            var loginname=$('#loginname').val();
+            var logincode =$('#logincode').val();
+            var data={"loginname":loginname,"logincode":logincode};
+              $.ajax({
+                  url:"http://localhost:3000/loginroute",
+                  data:data,
+                  success:function (data,stau) {
+                      if(stau == 'success')
+                      {
+                          if($("#remember").is(":checked")==true)//若选中设置cookie
+                          {
+                              $.cookie('loginname',loginname,{path:"/",expires:7});
+                              $.cookie('logincode',logincode,{path:"/",expires:7});
+                          }
+                          else//若没选中  清除cookie
+                          {
+                              $.cookie('loginname',null);
+                              $.cookie('logincode',null);
+                          }
+                          if(data.search('false')!=-1)
+                          {
+                              alert("用户名或密码错误^_^false");
+                              return;
+                          }
+                          if(data.search('StuId'))
+                          {
+                              window.location.href="http://localhost:3000/Homepage?"+"loginname="+loginname+"&logincode="+logincode;
+                              return;
+                          }
+                      }
+                      else
+                      {
+                          alert(stau);
+                      }
+                  },
+                  error:function () {
+                      alert("用户名或密码错误^_^");
+                  },
+              })
+       });
+
+       $('#logupbtn').click(function () {//用户注册模块
+            var data = $('form').serialize();
+            $.ajax({
+                url:'http://localhost:3000/loginuproute',
+                data:data,
+                success:function (dat,name) {
+                    console.log(dat);
+                  if(name =='success'&&dat!="false")
+                  {
+
+                       alert('Welcome  注册成功@_@');
+                   }
+                   else
+                   {
+                       alert("Sorry 注册失败-_-,该账号可能已被注册");
+                   }
+                  }
+
+            });
+       });
+    });
+
+      window.onload = function  draw()
+      {
+          var startx = 350, starty =100,tzhenh= 50;
+          var fw = 50,fh = 30;
+          var sw=70,sh=40;
+          var tw = 100,th = 45;
+          var fourw = 120,fourh = 35;
+          var fivew = 100,fiveh = 100;
+          var rx =startx - (sw-fw)+(tw/2),ry = starty+tzhenh+fh+sh +(th/2),r = (th-10)/2;
+          var rheart = 3;
+          var canvas = document.getElementById('mytower');
+          var context = canvas.getContext('2d');
+          context.strokeStyle="#F8F8FF";
+          context.beginPath();
+          context.lineWidth=3;
+          context.moveTo(startx,starty);
+          context.lineTo(startx,starty+tzhenh);
+          context.stroke();
+          context.closePath();
+          context.beginPath();
+          context.strokeRect(startx,starty+tzhenh,fw,fh);
+          context.closePath();
+          context.beginPath();
+          context.strokeRect(startx - (sw-fw),starty+tzhenh+fh,sw,sh);
+          context.closePath();
+          context.beginPath();
+          context.strokeRect(startx - (sw-fw),starty+tzhenh+fh+sh,tw,th);
+          context.closePath();
+          context.beginPath();
+          context.strokeRect(startx - (sw-fw),starty+tzhenh+fh+sh+th,fourw,fourh);
+          context.closePath();
+          context.beginPath();
+          context.strokeRect(startx - (sw-fw),starty+tzhenh+fh+sh+th+fourh,fivew,fiveh);
+          context.closePath();
+          context.beginPath();
+          context.arc(rx,ry,r,0,Math.PI*2,false);
+          context.stroke();
+          context.closePath();
+          context.beginPath();
+          context.arc(rx,ry,rheart,0,Math.PI*2,false);
+          context.stroke();
+          context.closePath();
+          context.beginPath();
+          context.lineCap="round";
+          context.moveTo(rx,ry);
+          context.lineTo(rx-8,ry-8);
+          context.stroke();
+          context.closePath();
+          context.beginPath();
+          context.lineCap="round";
+          context.moveTo(rx,ry);
+          context.lineTo(rx+10,ry-8);
+          context.stroke();
+          context.closePath();
+      }
+  </script>
+  </body>
+</html>

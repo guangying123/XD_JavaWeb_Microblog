@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>搜索好友</title>
+    <script  src="javascripts/jQuery.js"></script>
+    <link rel="stylesheet" type ="text/css" href="bootstrap/dist/css/bootstrap.min.css"/>
+    <script src="bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="carhartl-jquery-cookie-92b7715/jquery.cookie.js"></script>
+    <script>
+        var loginname = "<%=myloginname%>";//           @@@用户名
+    </script>
+    <style type="text/css">
+        *
+        {
+            margin: 0;
+            padding: 0;
+        }
+        body
+        {
+            width: 100%;
+            height: 100%;
+            background-color: honeydew;
+        }
+        #firstDiv
+        {
+            margin-top: 2%;
+            margin-left: 30%;
+        }
+        #firstDiv input
+        {
+            border-radius: 10px;
+            height: 30px;
+        }
+        #firstDiv button
+        {
+            background-color: deepskyblue;
+            border-radius: 10px;
+            height: 40px;
+            width: 100px;
+        }
+        #maindiv
+        {
+            margin-top: 2%;
+            margin-left: 200px;
+            margin-right: 200px;
+            border-top: 1px  dotted deeppink;
+        }
+        #leftdiv
+        {
+            width: 200px;
+            float: left;
+            height: 200%;
+        }
+        #rightdiv
+        {
+            width: 200px;
+            float: right;
+            height: 200%;
+        }
+        .tabclass
+        {
+            border: 1px dotted deepskyblue;
+            margin:  0 auto;
+            margin-top: 1%;
+            width: 60%;
+            height: 40%;
+            background-color: white;
+        }
+        .tdborder
+        {
+            border:1px dotted deepskyblue ;
+            text-align: center;
+        }
+        .btnclass
+        {
+            width: 100%;
+            height:100%;
+        }
+        #firstDiv #changePeople
+        {
+            background-color: white;
+            width: 60px;
+            height:30px;
+            margin-left: 1%;
+        }
+        .tuijianclass
+        {
+            width: 45%;
+            float: left;
+            margin-left: 2%;
+            margin-top: 2%;
+            margin-right: 2%;
+        }
+    </style>
+
+</head>
+<body>
+<div id="firstDiv">
+    <input type="text" name="friendID" id="friendID"/>
+    <button type="button" onclick="searchFriend()" id="searchF">账号搜索</button>
+    <button type="button"  style="margin-left: 25px" onclick="tuijian()">推荐好友</button>
+    <button value="1" id="changePeople" onclick="change_Friends(this)">换一批</button>
+</div>
+<div id="leftdiv">
+
+</div>
+<div id="rightdiv">
+
+</div>
+<div id="maindiv">
+</div>
+</body>
+<script>
+    var changeflag = 1;
+    function deal_change()
+    {
+        changeflag == 1?$('#changePeople').hide():$('#changePeople').show();
+    };
+    deal_change();
+    var userdata = [];
+
+    function  change_Friends(e)
+    {
+        var len = userdata.length;
+        var pagecount = len/4;
+        var tvalue = e.value;
+        if(tvalue > pagecount)
+            alert("Soory,暂时推荐就这么多-_-");
+        else
+        {
+            clearnTab();
+            var temin = (len - tvalue*4)<4?  (len - tvalue*4):4;
+            for(var k = 4*tvalue;k<4*tvalue+temin;k++)
+            {
+                dealFriend(userdata[k]);
+                $('#maindiv table').attr('class',"tuijianclass");
+            }
+            e.value = e.value+1;
+        }
+    }
+    function  tuijian()//好友推荐  建立超级账号表 先从超级账号表中推荐5个账号 若用户不满意  则再用算法从用户的好友的好友中，推荐和用户共同用户最多的
+    {
+        clearnTab();
+        changeflag = (-1)*changeflag;
+        deal_change();
+        var data = {"xuehao":loginname};
+        $.ajax({
+            url:'/dealFriend/tuijian',
+            data:data,
+            success:function (dat,name)
+            {
+                if(name == "success"&&dat!="false")
+                {
+                    userdata  = JSON.parse(dat);
+                    //console.log(userdata);
+                    var tuijianlen = userdata.length< 4 ? userdata.length:4;
+                    //console.log(tuijianlen);
+                    for(var p = 0;p<tuijianlen;p++)
+                    {
+                        dealFriend(userdata[p]);
+                        $('#maindiv table').attr('class',"tuijianclass");
+                    }
+                }
+                else
+                {
+                    alert("Sorry,好友推荐失败！");
+                }
+            }
+        });
+    }
+
+
+
+
+
+
+    function  searchFriend()
+    {
+        changeflag = 1;
+        deal_change();
+        clearnTab();
+        var friendID = $('#friendID').val();
+        var patt = /\d{11}/;
+        if(friendID.length == 11 && patt.test(friendID))
+        {
+            var data = {"friendID":friendID,"loginname":loginname};
+            //console.log(data);
+            $.ajax({
+                url:"/dealFriend",
+                data:data,
+                success:function (dat,name)
+                {
+                    if(name == "success"&&dat!="false")
+                    {
+                        switch (dat)
+                        {
+                            case "noUser":clearnTab();alert("Sorry,该用户不存在-_-"); break;
+                            default:   clearnTab();
+                                        var dat = JSON.parse(dat);
+                                        //console.log(dat);
+                                        dealFriend(dat);break;
+                        }
+                    }else
+                    {
+                        alert("数据库繁忙！");
+                    }
+                }
+            });
+        }
+        else
+        {
+            alert("输入的学号不正确");
+            $('friendID').focus();
+        }
+    }
+    function  clearnTab() //清除原先存在的用户信息tab
+    {
+        //console.log($('#maindiv table'));
+        $('#maindiv table').remove();
+    }
+
+    function  dealFriend(dat)
+    {
+        var maindiv = $('#maindiv');
+        //console.log(maindiv);
+        var tab = $("<table></table>");
+        var tr1= $('<tr><td>'+dat["StuId"]+'</td><td>'+dat["username"]+'</td><td rowspan="2"><img src="'+dat["photo_path"]+'" width="200px" height="200px" /></td></tr>');
+        tab.append(tr1);
+        var tr2=$('<tr><td>'+dat["sex"]+'</td><td>'+dat["addr"]+'</td></tr>');
+        tab.append(tr2);
+        tab.attr("class","tabclass");
+        var guanzhu = $('<tr></tr>')
+        if(dat["flag"] == 1)//1代表已经是好友了
+        {
+            var but1 = $('<td colspan="3"><button  value='+dat["StuId"]+' onclick="qguan(this)">取消关注</button></td>')
+            guanzhu.append(but1);
+        }
+        else
+        {
+            var but2 = $('<td colspan="3"><button  value='+dat["StuId"]+' onclick="guanzhu(this)">关注好友</button></td>');
+            guanzhu.append(but2);
+        }
+        tab.append(guanzhu);
+        maindiv.append(tab);
+        $('table td').attr('class',"tdborder");
+        $('table button').attr("class","btnclass");
+    }
+
+    function  qguan(event)
+    {
+        var data = {"xuehao":event.value,"loginname":loginname};
+        $.ajax({
+            url:"/dealFriend/quguan",
+            data:data,
+            success:function (dat,name)
+            {
+               // console.log(dat);
+                if(name == "success"&& dat!="false")
+                {
+                    alert("已取消关注！");
+                    event.innerHTML = "关注好友";
+                    event.setAttribute("onclick","guanzhu(this)");
+                }
+                else
+                {
+                    alert("取消关注失败！");
+                }
+            }
+        });
+    }
+
+    function  guanzhu(event)
+    {
+        //console.log(event.value);
+        var data = {"xuehao":event.value,"loginname":loginname};
+        $.ajax({
+            url:"/dealFriend/guanzhu",
+            data:data,
+            success:function (dat,name) {
+             if(name == "success"&&dat!="false")
+             {
+                 alert("关注成功！");
+                 event.innerHTML = "取消关注";
+                event.setAttribute("onclick","qguan(this)");
+             }
+             else
+             {
+                alert("Sorry,关注失败");
+             }
+            }
+        });
+    }
+
+    function  keydowndeal(event)
+    {
+        var e = e||window.event;
+        var index = e.charCode||e.which;
+        //console.log(index);
+        if(index == 13)
+        {
+            document.getElementById('searchF').click();
+        }
+    }
+    window.onkeydown = keydowndeal;
+
+</script>
+
+
+</html>

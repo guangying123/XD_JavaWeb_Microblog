@@ -1,0 +1,709 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Homepage</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+
+    <script  src="javascripts/jQuery.js"></script>
+    <link rel="stylesheet" type ="text/css" href="bootstrap/dist/css/bootstrap.min.css"/>
+    <script src="bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="carhartl-jquery-cookie-92b7715/jquery.cookie.js"></script>
+    <script>
+        var loginname = "<%=myloginname%>";//           @@@用户名
+        var logincode = "<%=mylogincode%>>";//          @@@密码
+    </script>
+
+    <style type="text/css">
+       html,body
+        {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+           background:azure;
+        }
+        .mytips
+        {
+            font-size:20pt;
+        }
+        #myhead
+        {
+            display: block;
+            margin-left: 30%;
+        }
+        #showDT
+        {
+            text-align: center;
+            margin-left: 150px;
+            margin-right: 270px;
+            border: 1px dashed palevioletred;
+            border-bottom: hidden;
+            background-color: white;
+        }
+        #showDT img
+        {
+            width: 400px;
+            height: 200px;
+        }
+        h2
+        {
+            font-size: 18px;
+            /*position: relative;*/
+            /*left: -200px;*/
+            position: absolute;
+            font-weight: 900;
+        }
+        #div1
+        {
+            width: 150px;
+            position: fixed;
+            top:20%;
+        }
+        #div2
+        {
+            width: 250px;
+            position: fixed;
+            left:82%;
+            top:20%;
+        }
+        .pinglun
+        {
+            text-align: left;
+            font-size:8px;
+        }
+        #div2 ul
+        {
+            list-style: none;
+            border:1px dotted black;
+            width: 220px;
+            height: 500px;
+            overflow: auto;
+            padding: 5px;
+        }
+        #div2 ul li
+        {
+            border-top: 1px solid palevioletred;
+            line-height: 30px;
+            cursor: pointer;
+            border-radius: 10px;
+            margin-top: 3px;
+        }
+       #div2 ul li:hover
+       {
+           background-color: #00b3ee;
+       }
+        #div2 ul li:first-child
+        {
+            background-color:coral;
+        }
+        .ping_lunclass
+        {
+                background-color: gray;
+                border-radius: 5px;
+                width:50px;
+                height:22px;
+                color:white ;
+                margin-left: 38%;
+        }
+        form input
+        {
+            width: 320px;
+            margin-top: 2px;
+            border-radius: 5px;
+        }
+        .huifuclass
+        {
+            font-size:6px ;
+            background-color: gray;
+            border-radius: 5px;
+            width:40px;
+            height:22px;
+            color:white ;
+            margin-left: 2%;
+        }
+        #see_more
+        {
+            margin-left: 150px;
+            margin-right: 200px;
+            margin-bottom: 20px;
+        }
+       #see_more button
+       {
+           width: 93%;
+           height:40px;
+       }
+    </style>
+</head  >
+<body>
+<div class="row" style="margin:0">
+    <div class="col-md-3 col-md-offset-9">
+        <img id="myhead" src="images\not found.jpg" height="80px" weight="80px" class="img-circle" data-toggle="modal" data-target="#mypicture"/>
+        <button type="button" class="btn btn-link"><%=myloginname%></button>
+        <button type="button" class="btn btn-link" data-toggle="modal" data-target="#personalCenter" id="mycenter">个人中心</button>
+        <button id="exit" type="button" class="btn btn-link">退出</button>
+    </div>
+</div>
+    <div id="div1">
+        <button class="btn btn-priamry" data-toggle="modal" data-target="#myword">文字动态</button><br><br><br>
+        <button class="btn btn-priamry" data-toggle="modal" data-target="#myph_word">图文动态</button><br><br><br>
+        <button class="btn btn-priamry" id="searchFriend">搜索好友</button>
+    </div>
+    <div id="div2">
+        <ul id="friendList">
+            <li id="showFriend" onclick="deal_show_friend()">我的好友</li>
+        </ul>
+    </div>
+    <div id="showDT">
+    </div>
+<div id="see_more">
+    <button value = "1" onclick="see_more(this)">查看更多</button>
+</div>
+<script>
+    var Friend_show_flag = 1;
+    function deal_show_friend()
+    {
+        Friend_show_flag == 1? $('#div2 ul li').not(':first').hide(): $('#div2 ul li').not(':first').show();
+         Friend_show_flag = (-1)*Friend_show_flag;
+    }
+    window.onload = function ()
+    {
+        var data = {"loginname":loginname};
+        $.ajax({
+            url:'/dealFriend/friendList',
+            data:data,
+            success:function (dat,name)
+            {
+                if(name == "success"&& dat!="false")
+                {
+                    var tdat = JSON.parse(dat);
+                    var len  =tdat.length;
+                    for(var k = 0;k<len;k++)
+                    {
+                      var tli=  $('<li>'+tdat[k]["xuehaoed"]+'</li>');
+                      $('#friendList').append(tli);
+                    }
+                    deal_show_friend();
+                }
+                else
+                {
+                  alert("好友列表加载失败")
+                }
+            }
+        })
+
+    }
+</script>
+
+
+
+<!-- 文字动态发表的模态框 -->
+<div class="modal fade" id="myword" tabindex="-1" role="dialog" aria-labelledby="myWordLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="text-align: center;margin-top: 30%;width: 100%;height:300px">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myWordLabel">
+                    想说点什么尼？
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="mywordform">
+                    <textarea  name="mywords" rows="7" cols="50" id="mywordtext"></textarea>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button type="button" class="btn btn-primary" onclick="myword()">
+                    发表
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--图片文字模态框 -->
+<div id="myph_word" class="modal fade" aria-hidden="true" aria-labelledby="myph_wordtitle" style="width: 40%;margin: 8% auto">
+    <div class="modal-content" style="background-color: bisque">
+        <div class="modal-header">
+            <button data-dismiss="modal" class="close" aria-hidden="true">
+                &times;
+            </button>
+            <h1 class="modal-title" id="myph_wordtitle">
+                图片动态
+            </h1>
+        </div>
+        <div class="modal-body">
+            <form id="myph_wordform" method="post" enctype="multipart/form-data">
+                <input type="file" id="files" name="file"/><br><br>
+                要说点什么尼？<br><br>
+                <textarea name="myph_wordtext" cols="50" rows="4"></textarea>
+            </form>
+            <div id="showgrade1"><img id="myloading1" src="images/loading.gif" style="display: none; width: 12%"/></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+            </button>
+            <button type="button" class="btn btn-primary" onclick="upload1()">
+                发表
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ajaxStart(function () {
+        $('#myloading1').show();
+    });
+    $(document).ajaxStop(function () {
+        $('#myloading1').hide();
+    });
+    function  upload1() {
+        var data = new FormData($('#myph_wordform')[0]);
+        console.log(data);
+        data.append("loginname",loginname);
+        var url="http://localhost:3000/myph_word";
+        $.ajax({
+            url:url,
+            type:'post',
+            data:data,
+            processData:false,//默认为true
+            contentType:false,//string类型 默认值: "application/x-www-form-urlencoded"。发送信息至服务器时内容编码类型。
+            success:function (dat,name)
+            {
+                if(name =='success'&&dat!="false")
+                {
+                    //console.log("success");
+                    location = location;
+                }
+                else
+                {
+                    alert("动态发表失败-_-!");
+                }
+            }
+        });
+    }
+    $('#searchFriend').click(function ()
+    {
+        window.open('/searchFriend?loginname='+loginname);
+    });
+</script>
+
+
+<!-- 实现退出按钮-->
+<script>
+    //发表文字动态函数
+    function  myword()
+    {
+
+        var textdata =$('#mywordtext').val();
+        //console.log(textdata+" "+loginname);
+        if(textdata) {
+            var data = {"mywords":textdata,"xuehao":loginname}
+            $.ajax({
+                url: '/myword',
+                data: data,
+                success: function (dat, name) {
+                    if (name == "success"&&dat!="false")
+                    {
+                        location = location;
+                    } else
+                    {
+                        console.log(name);
+                        alert("发表失败-_-")
+                    }
+                }
+            });
+        }else
+        {
+            alert("没有文字写入，请重新发表！")
+        }
+    }
+
+//loginname  logincode
+var customerId ;
+$(function () {
+    var phdata = {"loginname":loginname};
+    $.ajax({
+            url:'http://localhost:3000/phpath',
+            data:phdata,
+            success:function (data,name) {
+            if(name =='success')
+            {
+                var data = JSON.parse(data);
+                customerId = data['id'];//用户编号
+                //console.log("customerId:"+customerId);
+                $('#myhead').attr('src',data['photo_path']);
+            }
+            else
+            {
+             console.log("err:"+name);
+            }
+        }
+    });
+});
+//单个动态处理函数
+function  dealOneDongtai(data)
+{
+   //console.log(data);
+    var showDT = $('#showDT');
+    var h2 = $('<h2>'+data['xuehao']+':</h2><br>');
+    showDT.append(h2);
+    if(data['imageinfo'])
+    {
+        var img = $('<img  src="'+ data['imageinfo']+'"100px" />');
+        showDT.append(img);
+    }
+    if(data['dongtai'])
+    {
+        var dongtai = $('<p style="font-size: 18px">'+data['dongtai']+'</p>');
+        showDT.append(dongtai);
+    }
+       var date = new Date(data['shijian']);
+       var shijian = $('<p style="font-size:15pt">'+date.getUTCFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()+'</p>');
+       showDT.append(shijian);
+        var Pbtn = $('<button class="ping_lunclass" onclick="pinlun_show(this)" id='+data['flag']+'>评论</button>'); //评论按钮
+        showDT.append(Pbtn);
+    var pin_input = $('<form id="'+data['xuehao']+data['flag']+'"><input type="text" /><button type="button" value="fabu" onclick="fabu_cancel(this)">发表</button><button type="button" value="cancel" onclick="fabu_cancel(this)">取消</button></form>')
+    showDT.append(pin_input);
+    pin_input.hide();
+    var pinglun = data['liuyan'];
+    if(pinglun)
+    {
+        showDT.append($('<hr style="border: 1px dotted gray">'));
+        var tpinglun = pinglun.split('#');
+        var pinglen = tpinglun.length;
+        for(var i = 1;i<pinglen;i++)
+        {
+            showDT.append($('<p class="pinglun">'+tpinglun[i]+'<button class="huifuclass" id="'+i+"#"+data['flag']+'" onclick="hui_fu(this)">回复</button></p>'));
+        }
+    }
+    showDT.append($('<hr style="background-color: gray ;height: 1px;">'));
+
+}
+
+function hui_fu(e)
+{
+  var eid = e.id;
+  var pinglunid = eid.slice(eid.indexOf('#')+1);
+  document.getElementById(pinglunid).onclick();
+}
+
+
+function   pinlun_show(e)
+{
+    $("#"+e.id+" + form").show();
+}
+function  fabu_cancel(e)
+{
+    switch(e.value)
+    {
+        case "fabu":    var eparent = e.parentNode;
+                          var dat = {"flag":eparent.id.slice(11),"xuehao":loginname,"pinglun":eparent.firstChild.value};//form表单的id为(xuehao+动态的标号)
+                           console.log(dat);
+                          $.ajax({
+                              url:'/dealFriend/fabu_pinglun',
+                              data:dat,
+                              success:function (dat,name)
+                              {
+                                    if(name == "success"&&dat!="false")
+                                    {
+                                        $("#"+e.parentNode.id).hide();
+                                        location = location;
+                                        //效率不高，原则上应该只只将该评论追加到这条动态的末尾即可，不用刷新整个页面，因页面当初设计时，未将各个动态单例为一个div，导致后期
+                                        //选择器的编写异常麻烦，故出此下策。
+                                    }
+                                    else{
+                                        alert("发表评论失败!");
+                                    }
+                              }
+                          });
+                          console.log(dat);
+
+                             break;
+
+        case "cancel":$("#"+e.parentNode.id).hide(); break;
+        default:break;
+    }
+
+}
+
+
+
+
+//加载动态函数
+
+    function  load_dongtai(data)
+    {
+        $.ajax({
+            url:"/dongtai",
+            data:data,
+            success:function (dat,name)
+            {
+                if(name="success")
+                {
+                    var dat = JSON.parse(dat);
+                    //console.log(dat);
+                    var len  = dat.length;
+                    //console.log(len);
+                    for(var i = len-1;i>=0;i--)
+                    {
+                        dealOneDongtai(dat[i]);
+                    }
+                }else
+                {
+                    console.log(name);
+                }
+            }
+        });
+    }
+
+
+$(function () {
+        var data = {"loginname":loginname};
+        load_dongtai(data);
+});
+//查看更多函数
+    function  see_more(e)
+    {
+        var value = e.value;
+        var see_more_time = see_more_time1(value);
+        var data = {"loginname":loginname,"redate":see_more_time};
+        load_dongtai(data);
+        e.value = parseInt(value) +1;
+    }
+    function  is_run(year)
+    {
+        if(year%4==0&&year%100!=0||year%400 == 0)
+        {
+            return true;
+        }
+        return false;
+    }
+function see_more_time1(count)
+{
+    var days =[31,28,31,30,31,30,31,31,30,31,30,31];
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth()+1;
+    var day = now.getDate();
+    console.log(day);
+    console.log(count);
+    if(count == 1&&is_run(year))
+    {
+        days[1] = 29;
+    }
+    if(count <day)
+    {
+       // console.log( year+"-"+month+"-"+(day-count));
+        return year+"-"+month+"-"+(day-count);
+    }else
+    {
+        if(month == 1)
+        {
+            var tcount = count - day;
+            if(tcount == 0)
+                return (year-1)+"-"+"12-31";
+            var sum = 0;
+            for(var p = 11;p>=0;p--)
+            {
+                sum+=days[p];
+                if(sum>=tcount)
+                {
+                   // console.log((year-1)+"-"+(p+1)+"-"+(sum-tcount));
+                    return (year-1)+"-"+(p+1)+"-"+(sum-tcount);
+                }
+            }
+        }
+        else
+        {
+            //console.log(year+"-"+(month-1)+"-"+(days[month-2]-count+1));
+         return year+"-"+(month-1)+"-"+(days[month-2]-count+1);
+        }
+    }
+
+
+}
+
+
+
+    $('#exit').click(function () {
+        var x = confirm("狠心离开我?_?");
+        if(x == true)
+        window.location.href="http://localhost:3000/";
+    });
+</script>
+
+<!-- 头像上传的模态框-->
+<div id="mypicture" class="modal fade" aria-hidden="true" aria-labelledby="mypicturetitle" style="width: 40%;margin: 8% auto">
+    <div class="modal-content" style="background-color: bisque">
+        <div class="modal-header">
+            <button data-dismiss="modal" class="close" aria-hidden="true">
+                &times;
+            </button>
+            <h1 class="modal-title" id="mymodaltitle">
+                我的头像
+            </h1>
+        </div>
+        <div class="modal-body">
+            <form id="pictureform" method="post" enctype="multipart/form-data">
+                <input type="file" id="files" name="file" onchange="upload()"/>
+            </form>
+                <div id="showgrade"><img id="myloading" src="images/loading.gif" style="display: none; width: 12%"/></div>
+        </div>
+        <div class="modal-footer">
+            <em><small>@Copyright 畅阳光</small> </em>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ajaxStart(function () {
+            $('#myloading').show();
+        });
+        $(document).ajaxStop(function () {
+            $('#myloading').hide();
+        });
+    function  upload() {
+        var data = new FormData($('#pictureform')[0]);
+        data.append("loginname",loginname);
+        var url="http://localhost:3000/filedeal";
+        $.ajax({
+            url:url,
+            type:'post',
+            data:data,
+            processData:false,//默认为true
+            contentType:false,//string类型 默认值: "application/x-www-form-urlencoded"。发送信息至服务器时内容编码类型。
+            success:function (dat,name) {
+                if(name =='success')
+                {
+                    console.log("success");
+
+                    $('#myhead').attr("src",dat);
+                }
+                else
+                    console.log("fail");
+            }
+        });
+    }
+</script>
+
+
+<!-- 个人中心的模态框-->
+<div id="personalCenter" class="modal fade" aria-labelledby="mymodaltitle" aria-hidden="true"  style="width: 40%;margin: 8% auto">
+    <div class="modal-content" style="background-color: bisque">
+            <div class="modal-header">
+                <button data-dismiss="modal" class="close" aria-hidden="true">
+                    &times;
+                </button>
+                <h1 class="modal-title" id="mymodaltitle">
+                    个人中心
+                </h1>
+            </div>
+            <div class="modal-body">
+                <form id="personalform">
+                    昵&nbsp;称:<input type="text" name="username" id="username" placeholder="*用户名"/><br><br>
+                    学 &nbsp;号:<input type="text" name="StuId" id ="StuId" placeholder="*学号"/><br><br>
+                    性&nbsp;别:<input type="radio" value="男" name="sex" id="sexboy"/>男 &nbsp;&nbsp;&nbsp;<input type="radio" value="女" name="sex" id="sexgirl"/>女<br><br>
+                    住&nbsp;址:
+                    <select name="addr" id="addr">
+                        <option value="海棠">海棠</option>
+                        <option value="竹园">竹园</option>
+                        <option value="丁香">丁香</option>
+                    </select><br><br>
+                    社&nbsp;交:<input type="text" name="relation" id="relation" placeholder="QQ/WeChat/E-mail"/><br><br>
+                    <button id="diet" type="button" style="margin-left: 7%">编辑</button>&nbsp;&nbsp;<button type="button"  id="save">保存</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <em><small>@Copyright 畅阳光</small> </em>
+            </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script>
+    //个人中心编辑和保存的设置
+    //点击个人中心  发送AJAX请求 根据返回的数据回填表格并将表格设为禁用
+    //当点击编辑后解除禁用
+
+    function  formreadonly()//表单禁用函数
+    {
+        var temps = $('#personalform input');
+        temps.attr("readonly","readonly");
+        $('#addr').attr("disabled","disabled");
+        $('#sexboy').attr("disabled","disabled");
+        $('#sexgirl').attr("disabled","disabled");
+    }
+    function formenable() //表单解禁函数
+    {
+        var s = $('#personalform input');
+        s.removeAttr("readonly");
+        $('#addr').removeAttr("disabled");
+        $('#sexboy').removeAttr("disabled");
+        $('#sexgirl').removeAttr("disabled");
+    }
+//表单回填函数  即用服务器返回来的数据填写表单  该行为发生在刚点开个人中心时
+
+    $('#mycenter').click(function () {
+        formenable();
+        var userdata = {"loginname":loginname,"logincode":logincode};
+        $.ajax({
+                url:"http://localhost:3000/mycenter",
+                data:userdata,
+                success:function (data,name) {
+                 if(name=='success')
+                 {
+                        //console.log(data);
+                        data = JSON.parse(data);
+                        Object.keys(data).forEach(function (e) {
+                            if(e == 'sex')
+                            {
+                                if(data[e] == "男")
+                                {
+                                    $('#sexboy').attr("checked","checked");
+                                }
+                                if(data[e]=="女")
+                                {
+                                    $('#sexgirl').attr("checked","checked");
+                                }
+                            }
+                            else
+                            {
+                                console.log("'"+"#"+e+"'");
+                                $("#"+e).val(data[e]);
+
+                            }
+
+                    });
+                     formreadonly();
+                 }
+                }
+        });
+    });
+
+    //表单提交 提交用户数据同时禁用表单
+    $('#save').click(function () {
+        var data = $("#personalform").serialize();
+        $.ajax({
+            url:'http://localhost:3000/mycenterajax',
+            data:data,
+            success:function (dat,name) {
+               if(name=='success')
+               {
+                   formreadonly();
+               }
+            }
+        });
+    });
+
+    $('#diet').click(function () {//编辑模块   取消表单的禁用
+        formenable();
+    });
+
+</script>
+</body>
+</html>
